@@ -1,14 +1,10 @@
 import streamlit as st
 import pickle
 import numpy as np
-import pandas as pd
 
-# Load model and encoder
+# Load model
 with open("loan_model.pkl", "rb") as f:
     model = pickle.load(f)
-
-with open("label_encoder.pkl", "rb") as f:
-    le = pickle.load(f)
 
 st.set_page_config(page_title="Loan Prediction System")
 
@@ -28,21 +24,24 @@ LoanAmount = st.number_input("Loan Amount", min_value=0)
 Loan_Amount_Term = st.number_input("Loan Amount Term", min_value=0)
 Credit_History = st.selectbox("Credit History", [1.0, 0.0])
 
-# ---------- ENCODING ----------
-def encode(val):
-    return le.fit_transform([val])[0]
+# ---------- ENCODING (SAFE) ----------
+gender_map = {"Male": 1, "Female": 0}
+married_map = {"Yes": 1, "No": 0}
+education_map = {"Graduate": 1, "Not Graduate": 0}
+self_employed_map = {"Yes": 1, "No": 0}
+property_area_map = {"Urban": 2, "Semiurban": 1, "Rural": 0}
 
 input_data = np.array([
-    encode(Gender),
-    encode(Married),
-    encode(Education),
-    encode(Self_Employed),
+    gender_map[Gender],
+    married_map[Married],
+    education_map[Education],
+    self_employed_map[Self_Employed],
     ApplicantIncome,
     CoapplicantIncome,
     LoanAmount,
     Loan_Amount_Term,
     Credit_History,
-    encode(Property_Area)
+    property_area_map[Property_Area]
 ]).reshape(1, -1)
 
 # ---------- PREDICTION ----------
